@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import GradientButton from "../components/ui/GradientButton";
-import PlantSearchInput from "../components/ui/PlantSearchInput";
-import PlantStageSelect from "../components/ui/PlantStageSelect";
-import RealtimeReadingsCard from "../components/ui/RealtimeReadingsCard";
+import GradientButton from "../../components/ui/GradientButton";
+import PlantSearchInput from "../../components/ui/PlantSearchInput";
+import PlantStageSelect from "../../components/ui/PlantStageSelect";
+import RealtimeReadingsCard from "../../components/ui/RealtimeReadingsCard";
 
 const STAGE_OPTIONS = [
   { value: "seedling", label: "Seedling" },

@@ -16,7 +16,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="w-full bg-[#f6f0fa] px-8 py-4 flex items-center justify-between shadow-sm">
+    <nav className="w-full  bg-[#f6f0fa] px-8 py-4 flex items-center justify-between shadow-sm">
       <div className="mx-auto flex items-center gap-6 bg-white/70 px-6 py-2 rounded-full shadow-md">
         <NavItem
           icon={<Home size={18} />}
