@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-
+import { useRouter } from "next/navigation";
 import { Sprout, Activity, Info, ArrowRight } from "lucide-react";
 import GradientButton from "../components/ui/GradientButton";
 import RealtimeReadingsCard from "../components/ui/RealtimeReadingsCard";
@@ -9,7 +8,20 @@ import RealtimeReadingsCard from "../components/ui/RealtimeReadingsCard";
 export default function HomePage() {
   const router = useRouter();
 
-  const demoReadings = {};
+  // stable demo readings so server/client render the same markup
+  const demoReadings = {
+    ph: "--",
+    humidity: "--",
+    soilMoisture: "--",
+    tds: "--",
+    temperature: "--",
+    date: "--",
+    time: "--",
+  };
+
+  // deterministic class for the secondary button
+  const secondaryBtnClasses =
+    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors";
 
   return (
     <main className="min-h-screen pt-24 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#012818] via-[#044625] to-[#f3fff7]">
@@ -44,10 +56,8 @@ export default function HomePage() {
               </GradientButton>
 
               <button
-                onClick={() => router.push("/sensorreading")}
-                className="rounded-full px-6 py-3 text-sm sm:text-base font-medium
-                           border border-emerald-200/70 text-emerald-50
-                           bg-white/5 hover:bg-white/10 transition-colors"
+                onClick={() => router.push("/sensor-reading")}
+                className={secondaryBtnClasses}
               >
                 View Sensor Readings
               </button>
