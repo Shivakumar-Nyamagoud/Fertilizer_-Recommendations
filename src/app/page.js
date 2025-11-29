@@ -1,18 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
 import { Sprout, Activity, Info, ArrowRight } from "lucide-react";
-import GradientButton from "./components/ui/GradientButton";
-import RealtimeReadingsCard from "./components/ui/RealtimeReadingsCard";
+import GradientButton from "../components/ui/GradientButton";
+import RealtimeReadingsCard from "../components/ui/RealtimeReadingsCard";
 
 export default function HomePage() {
   const router = useRouter();
 
-  const demoReadings = {
-    ph: "6.5",
-    moisture: "47%",
-    temperature: "27°C",
-  };
+  const demoReadings = {};
 
   return (
     <main className="min-h-screen pt-24 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#012818] via-[#044625] to-[#f3fff7]">
