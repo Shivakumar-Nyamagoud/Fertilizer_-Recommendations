@@ -9,6 +9,7 @@ import PlantSearchInput from "../../components/ui/PlantSearchInput";
 import PlantStageSelect from "../../components/ui/PlantStageSelect";
 
 const STAGE_OPTIONS = [
+  { value: "", label: "Select" },
   { value: "seedling", label: "Seedling" },
   { value: "vegetative", label: "Vegetative" },
   { value: "flowering", label: "Flowering" },
