@@ -4,6 +4,15 @@ import { useRouter } from "next/navigation";
 import { Sprout, Activity, Info, ArrowRight } from "lucide-react";
 import GradientButton from "../components/ui/GradientButton";
 import RealtimeReadingsCard from "../components/ui/RealtimeReadingsCard";
+import ImageCarousel from "../components/ui/ImageCarousel";
+
+const carouselImages = [
+  "/images/1.png",
+  "/images/2.png",
+  "/images/3.png",
+  "/images/4.png",
+  "/images/5.png",
+];
 
 export default function HomePage() {
   const router = useRouter();
@@ -21,11 +30,14 @@ export default function HomePage() {
 
   // deterministic class for the secondary button
   const secondaryBtnClasses =
-    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors";
+    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer";
 
   return (
     <main className="min-h-screen pt-24 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#012818] via-[#044625] to-[#f3fff7]">
       <div className="w-full max-w-6xl space-y-12">
+        <div className="flex justify-center lg:justify-end">
+          <ImageCarousel images={carouselImages} />
+        </div>
         {/* HERO SECTION */}
         <section className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center">
           <div className="space-y-6 text-emerald-50">
@@ -49,14 +61,14 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-4">
               <GradientButton
                 onClick={() => router.push("/recommendations")}
-                className="bg-gradient-to-r from-emerald-500 to-green-500 flex items-center gap-2"
+                className="bg-gradient-to-r from-emerald-500 to-green-500 flex items-center gap-2 cursor-pointer"
               >
                 Get Recommendations
                 <ArrowRight size={18} />
               </GradientButton>
 
               <button
-                onClick={() => router.push("/sensor-reading")}
+                onClick={() => router.push("/sensorreading")}
                 className={secondaryBtnClasses}
               >
                 View Sensor Readings
@@ -70,9 +82,9 @@ export default function HomePage() {
           </div>
 
           {/* Right side – small live card */}
-          <div className="flex justify-center lg:justify-end">
+          {/* <div className="flex justify-center lg:justify-end">
             <RealtimeReadingsCard readings={demoReadings} />
-          </div>
+          </div> */}
         </section>
 
         {/* QUICK FEATURES ROW */}

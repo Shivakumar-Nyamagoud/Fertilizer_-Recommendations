@@ -37,6 +37,7 @@ export default function RecommendationsPage() {
 
   // recommendation state
   const [recommendation, setRecommendation] = useState(null);
+  const [fertilizer, setFertilizerData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -100,7 +101,7 @@ export default function RecommendationsPage() {
       },
       (err) => {
         console.error("RTDB read error:", err);
-      }
+      },
     );
 
     return () => unsub && typeof unsub === "function" && unsub();
@@ -134,10 +135,7 @@ export default function RecommendationsPage() {
         readings: {
           // normalise names expected by API
           ph: readings.ph,
-          moisture:
-            readings.humidity !== "--"
-              ? readings.humidity
-              : readings.soilMoisture,
+          moisture: readings.soilMoisture,
           temperature: readings.temperature,
         },
       };
@@ -155,6 +153,7 @@ export default function RecommendationsPage() {
 
       const json = await res.json();
       setRecommendation(json);
+      console.log(recommendation);
     } catch (e) {
       console.error("Recommendation error:", e);
       setError(String(e.message || e));
@@ -163,9 +162,46 @@ export default function RecommendationsPage() {
     }
   }
 
+  async function handleGetFertilizer() {
+    setLoading(true);
+    setError(null);
+    setFertilizerData(null);
+
+    try {
+      const payload = {
+        N: recommendation?.adjusted?.n ?? recommendation?.base?.n,
+        P: recommendation?.adjusted?.p ?? recommendation?.base?.p,
+        K: recommendation?.adjusted?.k ?? recommendation?.base?.k,
+        crop: crop,
+      };
+
+      const res = await fetch("http://localhost:8001/predict-fertilizer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || "Failed to fetch fertilizer");
+      }
+
+      const json = await res.json();
+
+      // json = { fertilizer: "...", confidence: 87.34 }
+      setFertilizerData(json);
+      console.log(fertilizer);
+    } catch (e) {
+      console.error("Recommendation error:", e);
+      setError(e.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   // deterministic secondary button classes
   const secondaryBtnClasses =
-    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors";
+    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer";
 
   return (
     <main className="min-h-screen pt-24 pb-12 px-4 flex justify-center bg-gradient-to-b from-[#02301b] via-[#044625] to-green-200 ">
@@ -214,7 +250,21 @@ export default function RecommendationsPage() {
                   handleGetRecommendations();
                 }}
               >
-                Recalculate
+                {loading
+                  ? " Calculating ..."
+                  : recommendation
+                    ? "Recalculate"
+                    : "Get Recommendations"}
+              </button>
+
+              <button
+                className={secondaryBtnClasses}
+                onClick={() => {
+                  // allow quick refresh of recommendation UI when user wants to re-run
+                  handleGetFertilizer();
+                }}
+              >
+                {loading ? "Loading ..." : "Predict Fertilizer"}
               </button>
 
               <div
@@ -238,8 +288,8 @@ export default function RecommendationsPage() {
                           : "—"
                       }`
                     : lastSeenMs
-                    ? `Last: ${new Date(lastSeenMs).toLocaleString()}`
-                    : "No data"}
+                      ? `Last: ${new Date(lastSeenMs).toLocaleString()}`
+                      : "No data"}
                 </span>
               </div>
             </div>
@@ -322,6 +372,17 @@ export default function RecommendationsPage() {
                 {recommendation.note}
               </p>
 
+              <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
+                <p className="text-xs text-gray-500">Recommended Fertilizer</p>
+                {fertilizer ? (
+                  <p className="font-semibold text-green-800 mt-1">
+                    {fertilizer.fertilizer}
+                  </p>
+                ) : (
+                  <></>
+                )}
+              </div>
+
               <div className="mt-4 text-xs text-gray-600 bg-gradient-to-r from-green-300 to-green-100 p-3 rounded decoration-solid">
                 <div>
                   <strong>Why adjusted:</strong>
@@ -341,12 +402,12 @@ export default function RecommendationsPage() {
                   Sensor values used: pH ={" "}
                   {String(
                     recommendation.adjusted?.adjustments?.ph ??
-                      payloadSafe(readings.ph)
+                      payloadSafe(readings.ph),
                   )}
                   {" • "} moisture ={" "}
                   {String(
                     recommendation.adjusted?.adjustments?.moisture ??
-                      payloadSafe(readings.humidity ?? readings.soilMoisture)
+                      payloadSafe(readings.humidity ?? readings.soilMoisture),
                   )}
                 </div>
               </div>
