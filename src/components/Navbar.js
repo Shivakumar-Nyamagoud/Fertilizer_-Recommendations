@@ -22,11 +22,7 @@ export default function Navbar() {
 
   const navItems = [
     { icon: <Home size={18} />, text: "Home", href: "/" },
-    {
-      icon: <LayoutDashboard size={18} />,
-      text: "Dashboard",
-      href: "/dashboard",
-    },
+
     {
       icon: <Activity size={18} />,
       text: "Sensor Reading",
