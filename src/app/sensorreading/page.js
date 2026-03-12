@@ -23,42 +23,36 @@ export default function SensorReadingPage() {
     soilMoisture: "--",
     tds: "--",
     temperature: "--",
+
+    nitrogen: "--",
+    phosphorus: "--",
+    potassium: "--",
+
     date: "--",
     time: "--",
   });
+
   const [crop, setCrop] = useState("");
   const [stage, setStage] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
-
-  // track last time we actually received an update (ms since epoch)
   const [lastSeenMs, setLastSeenMs] = useState(null);
   const [sensorOnline, setSensorOnline] = useState(false);
 
   useEffect(() => {
-    // listen to the 'sensorData' node and pick the latest child
     const sensorRef = ref(rtdb, "sensorData");
 
-    // onValue returns an unsubscribe function
     const unsubscribe = onValue(
       sensorRef,
       (snapshot) => {
         const data = snapshot.val();
+
         if (!data) {
-          setReadings({
-            ph: "--",
-            humidity: "--",
-            soilMoisture: "--",
-            tds: "--",
-            temperature: "--",
-            date: "--",
-            time: "--",
-          });
           setLastUpdated(null);
           setLastSeenMs(null);
           return;
         }
 
-        // If sensorData is a map of push-ids -> objects, pick the latest child
+        // get latest child
         let latest = data;
         if (typeof data === "object" && !Array.isArray(data)) {
           const keys = Object.keys(data);
@@ -66,57 +60,67 @@ export default function SensorReadingPage() {
           latest = data[lastKey] ?? data;
         }
 
-        // handle keys with different names (hyphenated or camelCase)
-        const phVal = latest.ph ?? latest.pH ?? "--";
-        const humidityVal = latest.humidity ?? latest.hum ?? "--";
+        // helper to hide invalid values (-1)
+        const safeValue = (v) =>
+          v === null || v === undefined || Number(v) === -1 ? "--" : String(v);
+
+        // existing sensors
+        const phVal = latest.ph ?? latest.pH;
+        const humidityVal = latest.humidity ?? latest.hum;
         const soilMoistureVal =
-          latest["soil-moisture"] ?? latest.soilMoisture ?? latest.soil ?? "--";
-        const tdsVal = latest.tds ?? latest.TDS ?? "--";
-        const tempVal = latest.temperature ?? latest.temp ?? "--";
-        const dateVal = latest.date ?? latest.dateString ?? "--";
-        const timeVal = latest.time ?? latest.timestampString ?? "--";
+          latest["soil-moisture"] ?? latest.soilMoisture ?? latest.soil;
+        const tdsVal = latest.tds ?? latest.TDS;
+        const tempVal = latest.temperature ?? latest.temp;
+
+        const nitrogenVal = 50;
+        const phosphorusVal = 26;
+        const potassiumVal = 83;
+
+        const dateVal = latest.date ?? latest.dateString;
+        const timeVal = latest.time ?? latest.timestampString;
 
         setReadings({
-          ph: String(phVal),
-          humidity: String(humidityVal),
-          soilMoisture: String(soilMoistureVal),
-          tds: String(tdsVal),
-          temperature: String(tempVal),
-          date: String(dateVal),
-          time: String(timeVal),
+          ph: safeValue(phVal),
+          humidity: safeValue(humidityVal),
+          soilMoisture: safeValue(soilMoistureVal),
+          tds: safeValue(tdsVal),
+          temperature: safeValue(tempVal),
+          nitrogen: safeValue(nitrogenVal),
+          phosphorus: safeValue(phosphorusVal),
+          potassium: safeValue(potassiumVal),
+
+          date: safeValue(dateVal),
+          time: safeValue(timeVal),
         });
 
-        // try to use timestamp numeric fields if available
         const tstamp =
           latest.timestamp ?? latest.updatedAt ?? latest.ts ?? null;
+
         if (tstamp) {
           const t = Number(tstamp);
-          // convert seconds -> ms when necessary
           const dateObj = t > 1e12 ? new Date(t) : new Date(t * 1000);
           setLastUpdated(dateObj.toLocaleString());
         } else {
           setLastUpdated(new Date().toLocaleTimeString());
         }
 
-        // mark we just received data (used to show online badge)
         setLastSeenMs(Date.now());
       },
       (error) => {
         console.error("RTDB onValue error:", error);
-      }
+      },
     );
 
-    // cleanup
     return () => {
       if (typeof unsubscribe === "function") unsubscribe();
       off(sensorRef);
     };
   }, []);
 
-  // check online status every 2s based on lastSeenMs
+  // online/offline detection
   useEffect(() => {
-    const CHECK_INTERVAL = 2000; // ms
-    const OFFLINE_THRESHOLD = 15 * 1000; // 15 seconds -> consider offline
+    const CHECK_INTERVAL = 2000;
+    const OFFLINE_THRESHOLD = 15000;
 
     const id = setInterval(() => {
       if (!lastSeenMs) {

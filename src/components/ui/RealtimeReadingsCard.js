@@ -25,12 +25,18 @@ export default function RealtimeReadingsCard({ readings = {} }) {
   const sensors = useMemo(
     () => [
       { key: "ph", label: "pH", max: 14 },
+
+      // ✅ NEW NPK Sensors
+      { key: "nitrogen", label: "Nitrogen (N)", max: 300 },
+      { key: "phosphorus", label: "Phosphorus (P)", max: 300 },
+      { key: "potassium", label: "Potassium (K)", max: 300 },
+
       { key: "humidity", label: "Humidity", max: 100 },
       { key: "soilMoisture", label: "Soil Moisture", max: 100 },
       { key: "tds", label: "TDS", max: 2000 },
       { key: "temperature", label: "Temperature", max: 60 },
     ],
-    []
+    [],
   );
 
   // Render rows from sensors list (memoized)
@@ -46,7 +52,7 @@ export default function RealtimeReadingsCard({ readings = {} }) {
           onOpen={() => handleOpen(label)}
         />
       )),
-    [sensors, readings, handleOpen]
+    [sensors, readings, handleOpen],
   );
 
   return (

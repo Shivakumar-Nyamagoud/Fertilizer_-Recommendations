@@ -28,6 +28,11 @@ export default function RecommendationsPage() {
     soilMoisture: "--",
     tds: "--",
     temperature: "--",
+
+    nitrogen: "--",
+    phosphorus: "--",
+    potassium: "--",
+
     date: "--",
     time: "--",
   });
@@ -55,6 +60,11 @@ export default function RecommendationsPage() {
             soilMoisture: "--",
             tds: "--",
             temperature: "--",
+
+            nitrogen: "--",
+            phosphorus: "--",
+            potassium: "--",
+
             date: "--",
             time: "--",
           });
@@ -86,6 +96,9 @@ export default function RecommendationsPage() {
           temperature: String(tempVal),
           date: String(dateVal),
           time: String(timeVal),
+          nitrogen: "50",
+          phosphorus: "26",
+          potassium: "83",
         });
 
         // set lastSeenMs from timestamp fields if present, otherwise now
