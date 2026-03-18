@@ -6,14 +6,15 @@ import RealtimeReadingsCard from "../../components/ui/RealtimeReadingsCard";
 import { rtdb } from "@/lib/firebaseClient";
 import { ref, onValue, off } from "firebase/database";
 import PlantSearchInput from "../../components/ui/PlantSearchInput";
-import PlantStageSelect from "../../components/ui/PlantStageSelect";
+import PlantStageSelect from "../../components/ui/SoilTypeSelect";
 
 const STAGE_OPTIONS = [
   { value: "", label: "Select" },
-  { value: "seedling", label: "Seedling" },
-  { value: "vegetative", label: "Vegetative" },
-  { value: "flowering", label: "Flowering" },
-  { value: "fruiting", label: "Fruiting" },
+  { value: "Sandy", label: "Sandy" },
+  { value: "Loamy", label: "Loamy" },
+  { value: "Black", label: "Black" },
+  { value: "Red", label: "Red" },
+  { value: "Clayey", label: "Clayey" },
 ];
 
 export default function SensorReadingPage() {
@@ -261,7 +262,7 @@ export default function SensorReadingPage() {
                           {crop}
                         </span>{" "}
                         <span className="text-gray-600">
-                          ({stage ? `${stage} Stage` : "Stage not selected"})
+                          ({stage ? `${stage} ` : "Soil not selected"})
                         </span>
                       </>
                     ) : (

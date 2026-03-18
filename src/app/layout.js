@@ -1,21 +1,37 @@
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Fertilizer Recommendations",
   description: "Fertilizer recommendations system",
 };
 
+// export default function RootLayout({ children }) {
+//   return (
+//     <html lang="en">
+//       <body className="min-h-screen bg-[#f6f0fa]">
+//         <div className="bg-[#f6f0fa]">
+//           <Navbar />
+//         </div>
+
+//         {/* Main content area */}
+//         <main className="p-8 text-white">{children}</main>
+//       </body>
+//     </html>
+//   );
+// }
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#f6f0fa]">
-        <div className="bg-[#f6f0fa]">
-          <Navbar />
-        </div>
+        {/* ✅ Sticky Navbar */}
+        <Navbar />
 
-        {/* Main content area */}
-        <main className="p-8 text-white">{children}</main>
+        {/* ✅ Main content */}
+        <main className="">{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -3,120 +3,91 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, X } from "lucide-react";
 
-/**
- * PlantSearchInput
- * Props:
- * - value (string)
- * - onChange (fn) -> called with selected value (only on select)
- * - onBack (fn)
- * - onClear (fn)
- */
 export default function PlantSearchInput({ value, onChange, onBack, onClear }) {
   const [query, setQuery] = useState(value || "");
   const [crops, setCrops] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
-
-  // Debounce timer ref
   const debounceRef = useRef(null);
 
-  // Load crops once
+  // Load crops
   useEffect(() => {
-    let mounted = true;
     fetch("/api/crops")
       .then((r) => r.json())
       .then((json) => {
-        if (!mounted) return;
-        if (json && Array.isArray(json.crops)) setCrops(json.crops);
+        if (json?.crops) setCrops(json.crops);
       })
-      .catch((e) => {
-        console.error("Failed to load crops:", e);
-        setCrops([]);
-      });
-    return () => (mounted = false);
+      .catch(() => setCrops([]));
   }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
-    function onDocClick(e) {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(e.target)) {
+    function handleClick(e) {
+      if (!containerRef.current?.contains(e.target)) {
         setOpen(false);
       }
     }
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  // Keep local query in sync with value from parent
+  // Close modal on ESC
   useEffect(() => {
-    setQuery(value || "");
-  }, [value]);
+    function handleEsc(e) {
+      if (e.key === "Escape") setShowModal(false);
+    }
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
 
-  // Debounced filtering
+  // Sync value
+  // useEffect(() => {
+  //   setQuery(value || "");
+  // }, [value]);
+
+  // Debounce filter
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    clearTimeout(debounceRef.current);
+
     debounceRef.current = setTimeout(() => {
-      const q = (query || "").trim();
+      const q = query.trim().toLowerCase();
+
       if (!q) {
         setFiltered([]);
         setOpen(false);
-        setHighlight(0);
         return;
       }
-      const matches = crops.filter((c) =>
-        String(c).toLowerCase().includes(q.toLowerCase())
-      );
-      const slice = matches.slice(0, 10);
-      setFiltered(slice);
-      setOpen(slice.length > 0);
+
+      const matches = crops.filter((c) => c.toLowerCase().includes(q));
+
+      const sliced = matches.slice(0, 10);
+
+      setFiltered(sliced);
+      setOpen(sliced.length > 0);
       setHighlight(0);
-    }, 160); // 120-200ms is a good debounce for typeahead
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    }, 150);
+
+    return () => clearTimeout(debounceRef.current);
   }, [query, crops]);
 
-  // scroll to item when highlight changes
-  useEffect(() => {
-    if (!open) return;
-    const el = listRef.current;
-    if (!el) return;
-    const items = el.querySelectorAll("[data-item]");
-    if (!items || items.length === 0) return;
-    const idx = Math.max(0, Math.min(highlight, items.length - 1));
-    const item = items[idx];
-    if (item) item.scrollIntoView({ block: "nearest" });
-  }, [highlight, open]);
-
-  function selectCrop(name, keepFocus = false) {
+  // Select crop (✅ closes dropdown)
+  function selectCrop(name) {
     setQuery(name);
-    setOpen(false);
     setFiltered([]);
+    setOpen(false);
     setHighlight(0);
-    if (typeof onChange === "function") onChange(name);
-    // keep or blur focus depending on preference:
-    if (keepFocus) {
-      inputRef.current?.focus();
-    } else {
-      inputRef.current?.blur();
-    }
+
+    if (onChange) onChange(name);
   }
 
-  // keyboard navigation
+  // Keyboard navigation
   function onKeyDown(e) {
-    // open list on first arrow when results exist
-    if (
-      !open &&
-      filtered.length > 0 &&
-      (e.key === "ArrowDown" || e.key === "ArrowUp")
-    ) {
-      setOpen(true);
-    }
     if (!open) return;
 
     if (e.key === "ArrowDown") {
@@ -127,96 +98,128 @@ export default function PlantSearchInput({ value, onChange, onBack, onClear }) {
       setHighlight((h) => Math.max(h - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (filtered[highlight]) selectCrop(filtered[highlight], false);
-    } else if (e.key === "Escape") {
-      setOpen(false);
+      if (filtered[highlight]) selectCrop(filtered[highlight]);
     }
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full max-w-md relative rounded-3xl bg-[#f4ecff] px-4 py-3 shadow-sm"
-    >
-      <div className="flex items-center gap-3 pb-2">
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-green-500 hover:text-green-600"
-          aria-label="Back"
-        >
-          <ArrowLeft size={20} />
-        </button>
-
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder="Enter crop name (select from list)"
-          className="flex-1 bg-transparent outline-none text-sm sm:text-base text-green-900 placeholder:text-gray-400"
-          aria-autocomplete="list"
-          aria-expanded={open}
-          aria-controls="croplistbox"
-          aria-activedescendant={open ? `crop-item-${highlight}` : undefined}
-        />
-
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setFiltered([]);
-              setOpen(false);
-              setHighlight(0);
-              if (typeof onClear === "function") onClear();
-              inputRef.current?.focus();
-            }}
-            className="text-green-500 hover:text-green-600"
-            aria-label="Clear"
-          >
-            <X size={18} />
-          </button>
-        )}
-      </div>
-
-      {/* Suggestions dropdown */}
+    <>
+      {/* Search Box */}
       <div
-        ref={listRef}
-        id="croplistbox"
-        role="listbox"
-        className={`absolute z-30 left-4 right-4 mt-1 max-h-60 overflow-auto rounded-xl bg-white shadow-lg border border-gray-100 ${
-          open ? "block" : "hidden"
-        }`}
+        ref={containerRef}
+        className="w-full max-w-md relative rounded-3xl bg-[#f4ecff] px-4 py-3 shadow-sm"
       >
-        {filtered.length === 0 ? (
-          <div className="p-3 text-xs text-gray-500">No matches</div>
-        ) : (
-          filtered.map((c, i) => (
-            <div
-              key={c + "-" + i}
-              data-item
-              id={`crop-item-${i}`}
-              role="option"
-              aria-selected={highlight === i}
-              onMouseEnter={() => setHighlight(i)}
-              onMouseDown={(e) => {
-                // onMouseDown to select before input blur
-                e.preventDefault();
-                selectCrop(c, false);
+        <div className="flex items-center gap-3 pb-2">
+          <button onClick={onBack} className="text-green-500">
+            <ArrowLeft size={20} />
+          </button>
+
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder="Enter crop name"
+            className="flex-1 bg-transparent outline-none text-green-900"
+          />
+
+          {query && (
+            <button
+              onClick={() => {
+                setQuery("");
+                setFiltered([]);
+                setOpen(false);
+                setHighlight(0);
+                onClear?.();
               }}
-              className={`cursor-pointer px-4 py-2 text-sm ${
-                highlight === i
-                  ? "bg-emerald-50 text-emerald-800"
-                  : "text-gray-800"
-              }`}
+              className="text-green-500"
             >
-              {c}
-            </div>
-          ))
-        )}
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* Dropdown */}
+        <div
+          ref={listRef}
+          className={`absolute z-30 left-4 right-4 mt-1 max-h-60 overflow-auto rounded-xl bg-white shadow-lg border ${
+            open ? "block" : "hidden"
+          }`}
+        >
+          {filtered.length === 0 ? (
+            <div className="p-3 text-sm text-gray-500">No matches</div>
+          ) : (
+            filtered.map((c, i) => (
+              <div
+                key={i}
+                onMouseEnter={() => setHighlight(i)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  selectCrop(c);
+                }}
+                className={`px-4 py-2 cursor-pointer ${
+                  highlight === i
+                    ? "bg-green-100 text-green-800"
+                    : "text-gray-800"
+                }`}
+              >
+                {c}
+              </div>
+            ))
+          )}
+
+          {/* Footer */}
+          <div className="border-t text-center p-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-sm text-green-600 hover:underline"
+            >
+              View all plants →
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="relative bg-white w-[90%] max-w-md rounded-xl p-4 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* ❌ Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-100"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
+
+            <h2 className="font-semibold text-lg mb-3 text-black">
+              All Plants
+            </h2>
+
+            {/* List */}
+            <div className="max-h-60 overflow-y-auto">
+              {crops.map((c, i) => (
+                <div
+                  key={i}
+                  onClick={() => {
+                    selectCrop(c);
+                    setShowModal(false);
+                  }}
+                  className="px-3 py-2 cursor-pointer hover:bg-green-100 rounded-md text-black"
+                >
+                  {c}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
-export default function PlantStageSelect({ value, onChange, options }) {
+import Link from "next/link";
+
+export default function SoilTypeSelect({ value, onChange, options }) {
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs sm:text-sm text-green-600 font-medium">
-        Select Plant Stage
+        Select Soil Type
       </span>
       <select
         value={value}
@@ -17,6 +19,16 @@ export default function PlantStageSelect({ value, onChange, options }) {
           </option>
         ))}
       </select>
+      <p className="text-xs sm:text-sm text-green-600 font-medium">
+        <span>Know More About Soil Types</span>
+        <Link
+          href="/about#about-soil"
+          className="text-blue-600 font-bold hover:underline"
+        >
+          {" "}
+          Here →
+        </Link>
+      </p>
     </div>
   );
 }
