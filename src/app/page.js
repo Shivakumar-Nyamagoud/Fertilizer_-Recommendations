@@ -8,9 +8,12 @@ import ImageCarousel from "../components/ui/ImageCarousel";
 
 const carouselImages = [
   "/images/1.png",
+  "/images/soil/black.png",
   "/images/2.png",
   "/images/3.png",
+  "/images/soil/clayey.png",
   "/images/4.png",
+  "/images/soil/loamy.png",
   "/images/5.png",
 ];
 
@@ -51,7 +54,7 @@ export default function HomePage() {
               <span className="text-lime-300">smart fertilizer decisions.</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-emerald-100/85 max-w-xl">
+            <p className="text-sm sm:text-base text-emerald-100/85 max-w-xl font-mono">
               Monitor realtime sensor readings, understand your soil health and
               get precise NPK recommendations for each crop and growth stage –
               all from one simple web dashboard.
@@ -63,7 +66,7 @@ export default function HomePage() {
                 onClick={() => router.push("/recommendations")}
                 className="bg-gradient-to-r from-emerald-500 to-green-500 flex items-center gap-2 cursor-pointer"
               >
-                Get Recommendations
+                Try Recommendations
                 <ArrowRight size={18} />
               </GradientButton>
 
@@ -73,11 +76,17 @@ export default function HomePage() {
               >
                 View Sensor Readings
               </button>
+              <button
+                onClick={() => router.push("/about")}
+                className={secondaryBtnClasses}
+              >
+                Know More ...
+              </button>
             </div>
 
             <p className="text-[11px] sm:text-xs text-emerald-100/70">
-              Works best with calibrated soil moisture, pH and temperature
-              sensors installed in the field.
+              Works best with calibrated soil moisture, pH, TDS, temperature and
+              NPK sensors installed in the field.
             </p>
           </div>
 
@@ -115,12 +124,26 @@ export default function HomePage() {
             The system connects your field sensors with this web platform. Once
             installed, you can:
           </p>
-          <ol className="list-decimal list-inside text-gray-700 text-sm sm:text-base space-y-1">
+          <ol className="list-decimal list-inside text-gray-700 text-sm sm:text-base space-y-1 font-mono">
             <li>
-              Check live soil and climate values from the Sensor Readings page.
+              Check live soil and climate values from the{" "}
+              <button
+                className="cursor-pointer text-blue-600 hover:font-bold hover:bg-green-200"
+                onClick={() => router.push("/sensorreading")}
+              >
+                Sensor Readings
+              </button>{" "}
+              page.
             </li>
             <li>
-              Select your crop and growth stage on the Recommendations page.
+              Select your crop and soil type on the{" "}
+              <button
+                className="cursor-pointer text-blue-600 hover:font-bold hover:bg-green-200"
+                onClick={() => router.push("/recommendations")}
+              >
+                Recommendations
+              </button>{" "}
+              page.
             </li>
             <li>
               Get NPK dosage suggestions based on current sensor values and
@@ -143,7 +166,7 @@ export default function HomePage() {
 /* Small reusable card for the feature section */
 function InfoCard({ icon, title, text }) {
   return (
-    <div className="rounded-2xl bg-white/90 backdrop-blur-md shadow-lg px-5 py-4 space-y-3 border border-emerald-50">
+    <div className="rounded-2xl bg-white/90 backdrop-blur-md shadow-lg px-5 py-4 space-y-3 border border-emerald-50 hover:animate-bounce cursor-pointer">
       <div className="flex items-center gap-2 text-emerald-700">
         <div className="h-9 w-9 rounded-full bg-emerald-50 flex items-center justify-center">
           {icon}

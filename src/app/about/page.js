@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Leaf,
   Activity,
@@ -7,228 +10,298 @@ import {
   Target,
 } from "lucide-react";
 
-export const metadata = {
-  title: "About | Smart Fertilizer Recommendation System",
-};
+import { useRouter } from "next/navigation";
+import AboutSoil from "@/components/ui/About/AboutSoil";
+import AboutPlatform from "@/components/ui/About/AboutPlatform";
+import SystemOperation from "@/components/ui/About/SystemOperation";
+import KeyFeatures from "@/components/ui/About/KeyFeatures";
+import PlatformBenefits from "@/components/ui/About/PlatformBenefits";
+import FutureEnhancement from "@/components/ui/About/FutureEnhancement";
+import FeaturePill from "@/components/ui/FeatureFill";
+
+import { useRef } from "react";
+
+// export const metadata = {
+//   title: "About | Smart Fertilizer Recommendation System",
+// };
 
 export default function AboutPage() {
+  const [active, setActive] = useState("");
+  const router = useRouter();
+  const sections = [
+    "overview",
+    "platform",
+    "about-soil",
+    "system",
+    "features",
+    "ai",
+    "benefits",
+    "future",
+    "technology",
+    "vision",
+  ];
+
+  const navRef = useRef(null);
+  useEffect(() => {
+    if (!navRef.current) return;
+
+    const activeEl = navRef.current.querySelector(`[data-id="${active}"]`);
+
+    if (activeEl) {
+      activeEl.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [active]);
+
+  // Scroll Spy
+  useEffect(() => {
+    const handleScroll = () => {
+      let current = "";
+
+      sections.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const rect = el.getBoundingClientRect();
+
+        // Section is in viewport (top portion)
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          current = id;
+        }
+      });
+
+      setActive(current);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // run once on load
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <main className="min-h-screen pt-28 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#012818] via-[#04512c] to-[#f3fff7]">
+    <main className="min-h-screen  pt-28 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#012818] via-[#04512c] to-[#f3fff7]">
+      {/* ✅ TOP SCROLL NAV (ALL SCREENS) */}
+      <div className="fixed top-25 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-5xl px-4">
+        <div
+          className="flex gap-3 overflow-x-auto no-scrollbar bg-emerald-900/80 backdrop-blur-xl border border-white/10 rounded-full px-3 py-2 shadow-lg"
+          ref={navRef}
+        >
+          {[
+            { id: "overview", label: "Project Overview" },
+            { id: "platform", label: "About the Web Platform" },
+            { id: "about-soil", label: "About Soil Types" },
+            { id: "system", label: "How the System Operates" },
+            { id: "features", label: "Key Features of the Website" },
+            { id: "benefits", label: "Benefits for Farmers" },
+            { id: "ai", label: "How AI Recommendation Works" },
+            { id: "future", label: "Future Enhancements" },
+            { id: "technology", label: "Technology Stack" },
+            { id: "vision", label: "Our Vision" },
+          ].map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              data-id={item.id}
+              className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm transition ${
+                active === item.id
+                  ? "bg-white text-emerald-800 font-semibold"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       <div className="w-full max-w-6xl relative">
-        {/* soft glow behind card */}
         <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/30 via-lime-400/20 to-emerald-500/30 blur-3xl opacity-60" />
 
-        {/* main card */}
         <div className="relative w-full bg-white/95 backdrop-blur-xl rounded-[32px] border border-emerald-50 shadow-[0_24px_60px_rgba(0,0,0,0.25)] px-6 sm:px-10 py-10 space-y-10">
-          {/* top badge + title */}
-          <section className="text-center space-y-4">
+          {/* HEADER */}
+          <section id="overview" className="text-center space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1 text-xs font-medium text-emerald-700 shadow-sm">
               <Leaf size={16} /> Smart Farming Web Platform
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-emerald-900">
               About Smart Fertilizer Recommendation System
             </h1>
 
-            <p className="max-w-2xl mx-auto mt-2 text-gray-600 text-base sm:text-lg">
-              An intelligent, web-first platform that turns realtime soil data
-              into clear, actionable guidance for precision agriculture and
-              sustainable farming.
-            </p>
+            <ul className="max-w-2xl mx-auto text-gray-600">
+              <FeaturePill>
+                An intelligent platform that turns realtime soil data into
+                actionable farming insights.
+              </FeaturePill>
+            </ul>
+          </section>
 
-            {/* quick stats */}
-            <div className="mt-5 grid gap-4 sm:grid-cols-3 text-sm">
-              <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-left">
-                <p className="text-[11px] uppercase tracking-wide text-emerald-600">
-                  Core Modules
-                </p>
-                <p className="text-lg font-semibold text-emerald-900">
-                  Dashboard · Sensors · NPK
-                </p>
+          <Divider />
+
+          {/* OVERVIEW */}
+          <Section
+            id="overview"
+            icon={<Activity size={20} />}
+            title="Project Overview"
+          >
+            <>
+              <p className="text-gray-700 text-justify">
+                The Smart Fertilizer Recommendation System is a full-stack web
+                application designed to help farmers and agricultural users
+                select the most suitable fertilizer based on soil nutrients and
+                crop type. The system uses machine learning to analyze key
+                parameters such as nitrogen (N), phosphorus (P), potassium (K),
+                temperature, humidity, moisture, and crop type to provide
+                accurate fertilizer recommendations.
+              </p>
+              <p className="text-gray-700 text-justify">
+                The application consists of a React/Next.js frontend and a
+                FastAPI backend. Users input soil and crop details through an
+                intuitive interface, and the backend processes this data using a
+                trained ML model to predict the best fertilizer along with a
+                confidence score.
+              </p>
+              <p className="text-gray-700 text-justify">
+                To enhance usability, the system can also display top multiple
+                fertilizer suggestions ranked by probability, allowing users to
+                make informed decisions. Additionally, the platform includes
+                educational content such as soil information and benefits for
+                farmers, making it both a predictive and informative tool.
+              </p>
+            </>
+          </Section>
+          <Divider />
+          {/* PLATFORM */}
+          <Section
+            id="platform"
+            icon={<MonitorSmartphone size={20} />}
+            title="About the Web Platform"
+          >
+            <AboutPlatform />
+          </Section>
+          <Divider />
+          {/* SOIL */}
+          <Section
+            id="about-soil"
+            icon={<Leaf size={20} />}
+            title="About Soil Types"
+          >
+            <AboutSoil />
+          </Section>
+          <Divider />
+          {/* SYSTEM */}
+          <Section
+            id="system"
+            icon={<Sparkles size={20} />}
+            title="How the System Operates"
+          >
+            <SystemOperation />
+          </Section>
+          <Divider />
+          {/* FEATURES */}
+          <Section
+            id="features"
+            icon={<TrendingUp size={20} />}
+            title="Key Features"
+          >
+            <KeyFeatures />
+          </Section>
+          <Divider />
+          {/* BENEFITS */}
+          <Section
+            id="benefits"
+            icon={<Leaf size={20} />}
+            title="Benefits for Farmers"
+          >
+            <PlatformBenefits />
+          </Section>
+          <Divider />
+          <Section
+            id="ai"
+            icon={<Sparkles size={20} />}
+            title="How AI Recommendation Works"
+          >
+            <ul className="list-disc list-inside text-gray-700 space-y-2 font-mono">
+              <li>Collect soil parameters (N, P, K, moisture, pH)</li>
+              <li>Preprocess and normalize input data</li>
+              <li>Feed data into trained ML model</li>
+              <li>Predict best fertilizer combination</li>
+              <li>Return recommendation with confidence score</li>
+            </ul>
+            <button
+              onClick={() => router.push("/recommendations")}
+              className="text-green-500 cursor-pointer pl-10 text-lg"
+            >
+              Try AI Prediction
+            </button>
+          </Section>
+          <Divider />
+          {/* FUTURE */}
+          <Section
+            id="future"
+            icon={<Sparkles size={20} />}
+            title="Future Enhancements"
+          >
+            <FutureEnhancement />
+          </Section>
+          <Divider />
+          <Section
+            id="technology"
+            icon={<MonitorSmartphone size={20} />}
+            title="Technology Stack"
+          >
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div className="bg-emerald-200 p-4 rounded-xl">
+                <p className="font-semibold text-emerald-800">Frontend</p>
+
+                <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
+                  <FeaturePill>Next.js</FeaturePill>
+                  <FeaturePill>Tailwind CSS</FeaturePill>
+                </ul>
               </div>
-              <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-left">
-                <p className="text-[11px] uppercase tracking-wide text-emerald-600">
-                  Focus
-                </p>
-                <p className="text-lg font-semibold text-emerald-900">
-                  Realtime insights
-                </p>
+              <div className="bg-emerald-200 p-4 rounded-xl">
+                <p className="font-semibold text-emerald-800">Backend</p>
+
+                <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
+                  <FeaturePill>FastAPI (Python)</FeaturePill>
+                  <FeaturePill>REST API</FeaturePill>
+                </ul>
               </div>
-              <div className="rounded-2xl bg-emerald-50 px-4 py-3 text-left">
-                <p className="text-[11px] uppercase tracking-wide text-emerald-600">
-                  Designed For
-                </p>
-                <p className="text-lg font-semibold text-emerald-900">
-                  Farmers & agronomists
-                </p>
+              <div className="bg-emerald-200 p-4 rounded-xl">
+                <p className="font-semibold text-emerald-800">ML Model</p>
+
+                <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
+                  <FeaturePill>Python</FeaturePill>
+                  <FeaturePill>Scikit-learn</FeaturePill>
+                </ul>
               </div>
             </div>
-          </section>
-
-          {/* separator line */}
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
-
-          {/* Project Overview */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<Activity size={20} />}
-              title="Project Overview"
-            />
-
-            <p className="text-gray-700 leading-relaxed">
-              The Smart Fertilizer Recommendation System is a modern web-based
-              platform designed to assist farmers in making accurate and
-              data-driven decisions related to fertilizer application and
-              irrigation scheduling. The website integrates real-time IoT sensor
-              data, intelligent algorithms and an intuitive user interface to
-              deliver precise recommendations that improve crop productivity
-              while reducing resource wastage.
-            </p>
-            <p className="text-gray-700 leading-relaxed">
-              Unlike traditional farming methods that rely heavily on manual
-              observation and intuition, this platform introduces automation and
-              intelligence into agricultural decision-making. The website acts
-              as a centralized hub where farmers can monitor live sensor
-              readings, analyze soil conditions and receive customized
-              fertilizer suggestions based on crop type and environmental
-              factors.
-            </p>
-          </section>
-
-          {/* Website Focus */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<MonitorSmartphone size={20} />}
-              title="About the Web Platform"
-            />
-
-            <p className="text-gray-700 leading-relaxed">
-              The website is the primary interaction layer for the entire smart
-              farming ecosystem. It is designed to be clean, responsive and easy
-              to understand, even for users with minimal technical background.
-              Complex sensor data is converted into visual insights, simple
-              language and clear calls to action so that farmers can focus on
-              their field instead of struggling with technology.
-            </p>
-
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                Central dashboard displaying live soil moisture, temperature, pH
-                and nutrient levels
-              </li>
-              <li>
-                Sensor Reading page for real-time monitoring of field conditions
-                and sensor health
-              </li>
-              <li>
-                Recommendation module providing precise fertilizer quantity,
-                type and application schedule
-              </li>
-              <li>
-                Alerts and notifications when soil nutrients or moisture move
-                out of the optimal range
-              </li>
-              <li>
-                Historical data visualization for trend analysis and smarter
-                long-term planning
-              </li>
-            </ul>
-          </section>
-
-          {/* System Working */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<Sparkles size={20} />}
-              title="How the System Operates"
-            />
-
-            <ol className="list-decimal list-inside text-gray-700 space-y-2">
-              <li>
-                Sensors deployed in the agricultural field collect soil and
-                environmental data.
-              </li>
-              <li>
-                Data is securely transmitted to the cloud via IoT communication
-                modules.
-              </li>
-              <li>
-                The backend processes, validates and analyzes incoming data.
-              </li>
-              <li>
-                The system calculates fertilizer requirements based on crop
-                needs, soil nutrient levels and growth stage.
-              </li>
-              <li>
-                The website presents recommendations in a clear, structured and
-                farmer-friendly format.
-              </li>
-            </ol>
-          </section>
-
-          {/* Key Features */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<TrendingUp size={20} />}
-              title="Key Features of the Website"
-            />
-
-            <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
-              <FeaturePill>Real-time sensor monitoring dashboard</FeaturePill>
-              <FeaturePill>Smart fertilizer recommendation engine</FeaturePill>
-              <FeaturePill>Visual data charts and analytics</FeaturePill>
-              <FeaturePill>User-friendly navigation interface</FeaturePill>
-              <FeaturePill>Crop-specific guidance system</FeaturePill>
-              <FeaturePill>Responsive design for mobile and tablet</FeaturePill>
-            </ul>
-          </section>
-
-          {/* Benefits */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<Leaf size={20} />}
-              title="Benefits for Farmers"
-            />
-
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>Optimized use of fertilizers and irrigation water</li>
-              <li>Improved crop yield, quality and consistency</li>
-              <li>Reduced farming costs and input wastage</li>
-              <li>Prevention of soil nutrient imbalance and degradation</li>
-              <li>Promotion of climate-smart and sustainable practices</li>
-            </ul>
-          </section>
-
-          {/* Future Scope */}
-          <section className="space-y-4">
-            <HeaderWithIcon
-              icon={<Sparkles size={20} />}
-              title="Future Enhancements"
-            />
-
-            <p className="text-gray-700 leading-relaxed">
-              Future development of the platform includes integration of
-              AI-based disease detection, automated irrigation and fertigation
-              control, more advanced crop prediction models and multilingual
-              support to reach farmers across different regions. Weather
-              forecasting and market price integration can further strengthen
-              decision-making and planning at the farm level.
-            </p>
-          </section>
-
-          {/* Vision */}
-          <section className="text-center space-y-3 pt-4 border-t border-emerald-50">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-600/10 px-4 py-1">
-              <Target size={18} className="text-emerald-700" />
-              <span className="text-xs font-semibold tracking-wide text-emerald-800">
-                Our Vision
-              </span>
+            <div className="bg-emerald-200 p-4 rounded-xl text-sm">
+              <p className="font-semibold text-emerald-800">IoT Sensors</p>
+              <ul className="grid sm:grid-cols-3 gap-3 text-gray-700 text-sm sm:text-base">
+                <FeaturePill>pH</FeaturePill>{" "}
+                <FeaturePill>Temparature & Humidity</FeaturePill>
+                <FeaturePill>Soil Moisture</FeaturePill>
+                <FeaturePill>NPK</FeaturePill>
+                <FeaturePill>TDS</FeaturePill>
+              </ul>
             </div>
-            <p className="mt-1 text-gray-700 leading-relaxed max-w-2xl mx-auto">
-              To empower farmers with cutting-edge yet accessible technology
-              that transforms traditional agriculture into a smart, efficient
-              and sustainable ecosystem – where every fertilizer decision is
-              backed by realtime intelligence and every field becomes a
-              data-driven farm.
+          </Section>
+          <Divider />
+          {/* VISION */}
+          <section id="vision" className="text-center pt-6 border-t">
+            <div className="inline-flex items-center gap-2 bg-emerald-600 px-4 py-1 rounded-full">
+              <Target size={16} /> Vision
+            </div>
+            <p className="text-gray-700 mt-2 max-w-xl mx-auto">
+              Our vision is to revolutionize agriculture by empowering farmers
+              with intelligent, data-driven insights that enhance productivity,
+              promote sustainable practices, and improve livelihoods, while
+              ensuring a smarter and more secure future for global food systems.
             </p>
           </section>
         </div>
@@ -237,24 +310,24 @@ export default function AboutPage() {
   );
 }
 
-/* Reusable small components */
+/* Reusable Components */
 
-function HeaderWithIcon({ icon, title }) {
+function Section({ id, icon, title, children }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-        {icon}
+    <section id={id} className="space-y-4 scroll-mt-32">
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 flex items-center justify-center bg-emerald-50 rounded-full text-emerald-700">
+          {icon}
+        </div>
+        <h2 className="text-xl font-semibold text-emerald-800">{title}</h2>
       </div>
-      <h2 className="text-2xl font-semibold text-emerald-800">{title}</h2>
-    </div>
+      {children}
+    </section>
   );
 }
 
-function FeaturePill({ children }) {
+function Divider() {
   return (
-    <li className="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 shadow-sm">
-      <span className="h-2 w-2 rounded-full bg-emerald-500" />
-      <span>{children}</span>
-    </li>
+    <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
   );
 }

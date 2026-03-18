@@ -42,7 +42,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-[#f6f0fa] px-4 sm:px-8 py-3 shadow-sm">
+    <nav className="sticky top-0 z-50 w-full bg-[#f6f0fa] px-4 sm:px-8 py-3 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* LEFT: Logo (always visible, aligned to left) */}
         <div
