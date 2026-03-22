@@ -14,17 +14,6 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// const firebaseConfig = {
-//   apiKey: "AIzaSyD1t1VNXUVjY3Q4lNt7eJk1gMIe1dYEfGI",
-//   authDomain: "iotagriproject-f93ee.firebaseapp.com",
-//   databaseURL: "https://iotagriproject-f93ee-default-rtdb.firebaseio.com",
-//   projectId: "iotagriproject-f93ee",
-//   storageBucket: "iotagriproject-f93ee.firebasestorage.app",
-//   messagingSenderId: "182362566932",
-//   appId: "1:182362566932:web:bb3345d28da7eab14dd201",
-//   measurementId: "G-J27X75C0H7",
-// };
-
 // initialize app only once (prevents "duplicate app" error)
 let app;
 if (!getApps().length) {
