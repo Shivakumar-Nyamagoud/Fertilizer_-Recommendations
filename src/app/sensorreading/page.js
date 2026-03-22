@@ -189,13 +189,14 @@ export default function SensorReadingPage() {
 
         <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-5 shadow-lg">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.2fr)_auto] items-end">
-            <PlantSearchInput
-              value={crop}
-              onChange={setCrop}
-              onBack={() => {}}
-              onClear={() => setCrop("")}
-            />
-
+            <div className="mb-4">
+              <PlantSearchInput
+                value={crop}
+                onChange={setCrop}
+                onBack={() => {}}
+                onClear={() => setCrop("")}
+              />
+            </div>
             <PlantStageSelect
               value={stage}
               onChange={setStage}

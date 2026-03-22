@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AgroSenseLogo from "@/components/ui/AgroSenseLogo";
 import {
   Home,
-  LayoutDashboard,
   Info,
   User,
   Settings,
@@ -13,16 +12,21 @@ import {
   Sprout,
   Menu,
   X,
+  Bell,
+  Moon,
+  LogOut,
 } from "lucide-react";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const navItems = [
     { icon: <Home size={18} />, text: "Home", href: "/" },
-
     {
       icon: <Activity size={18} />,
       text: "Sensor Reading",
@@ -37,116 +41,149 @@ export default function Navbar() {
   ];
 
   const handleNavigate = (href) => {
-    setOpen(false); // close mobile menu when navigating
+    setMenuOpen(false);
     router.push(href);
   };
+
+  // Close popups on outside click
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (!e.target.closest(".profile-box")) setProfileOpen(false);
+      if (!e.target.closest(".settings-box")) setSettingsOpen(false);
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-[#f6f0fa] px-4 sm:px-8 py-3 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* LEFT: Logo (always visible, aligned to left) */}
+        {/* Logo */}
         <div
           className="flex items-center gap-3 cursor-pointer"
-          onClick={() => {
-            setOpen(false);
-            router.push("/");
-          }}
+          onClick={() => router.push("/")}
         >
-          <div className="flex items-center">
-            {/* Use a compact size so it fits well on small screens */}
-            <AgroSenseLogo size={36} textSize="text-lg" />
-          </div>
+          <AgroSenseLogo size={36} textSize="text-lg" />
         </div>
 
-        {/* CENTER: pill nav (hidden on small screens) */}
-        <div className="hidden md:flex items-center gap-6 bg-white/70 px-6 py-2 rounded-full shadow-md">
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-8 bg-white/70 px-6 py-2 rounded-full shadow-md">
           {navItems.map((item) => (
             <NavItem
               key={item.href}
-              icon={item.icon}
-              text={item.text}
+              {...item}
               active={pathname === item.href}
               onClick={() => handleNavigate(item.href)}
             />
           ))}
         </div>
 
-        {/* RIGHT: icons + mobile menu button */}
+        {/* Right Section */}
         <div className="flex items-center gap-3">
-          {/* desktop icons */}
+          {/* Desktop Icons */}
           <div className="hidden sm:flex items-center gap-3">
-            <div
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 cursor-pointer"
-              onClick={() => router.push("/profile")}
-              title="Profile"
-            >
-              <User className="text-green-500" size={20} />
+            {/* Profile */}
+            <div className="relative profile-box">
+              <div
+                onClick={() => {
+                  setProfileOpen(!profileOpen);
+                  setSettingsOpen(false);
+                }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 cursor-pointer transition"
+              >
+                <User className="text-green-600" size={20} />
+              </div>
+
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border p-4 animate-fadeIn">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100">
+                      <User className="text-green-600" size={18} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-green-900">
+                        Farmer
+                      </p>
+                      <p className="text-sm text-gray-500">Smart User</p>
+                    </div>
+                  </div>
+
+                  <div className="my-3 border-t"></div>
+
+                  <div className="text-sm space-y-1 text-gray-600">
+                    <p>
+                      <b>Role:</b> Farmer
+                    </p>
+                    <p>
+                      <b>Access:</b> AI Recommendations
+                    </p>
+                    <p>
+                      <b>Location:</b> India
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 cursor-pointer"
-              onClick={() => router.push("/settings")}
-              title="Settings"
-            >
-              <Settings className="text-green-500" size={20} />
+            {/* Settings */}
+            <div className="relative settings-box">
+              <div
+                onClick={() => {
+                  setSettingsOpen(!settingsOpen);
+                  setProfileOpen(false);
+                }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 hover:bg-green-200 cursor-pointer transition"
+              >
+                <Settings className="text-green-600" size={20} />
+              </div>
+
+              {settingsOpen && (
+                <div className="absolute right-0 mt-2 text-green-900 w-60 bg-white rounded-xl shadow-lg border p-3 animate-fadeIn">
+                  <p className="text-sm font-semibold mb-2 px-2">Settings</p>
+
+                  <button className="flex items-center gap-2 w-full px-2 py-2 hover:bg-gray-100 rounded">
+                    <Bell size={16} /> Notifications
+                  </button>
+
+                  {/* <button className="flex items-center gap-2 w-full px-2 py-2 hover:bg-gray-100 rounded">
+                    <Moon size={16} /> Dark Mode
+                  </button> */}
+
+                  <div className="border-t my-2"></div>
+
+                  <button className="flex items-center gap-2 w-full px-2 py-2 text-red-600 hover:bg-red-50 rounded">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* hamburger for small screens */}
+          {/* Mobile Menu */}
           <button
-            className="md:hidden p-2 rounded-md bg-white/60 hover:bg-white/80"
-            onClick={() => setOpen((s) => !s)}
-            aria-expanded={open}
-            aria-label={open ? "Close menu" : "Open menu"}
+            className="md:hidden p-2 bg-green-200 rounded-md"
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            {open ? (
-              <X size={20} className="text-green-600" />
-            ) : (
-              <Menu size={20} className="text-green-600" />
-            )}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu: shown when `open` is true (collapsible) */}
+      {/* Mobile Dropdown */}
       <div
-        className={`md:hidden mt-3 transition-[max-height,opacity] duration-200 ease-in-out overflow-hidden ${
-          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        className={`md:hidden mt-3 overflow-hidden transition-all ${
+          menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
-        aria-hidden={!open}
       >
-        <div className="bg-white/95 p-4 rounded-lg shadow-md">
-          <div className="flex flex-col gap-2">
-            {navItems.map((item) => (
-              <MobileNavItem
-                key={item.href}
-                icon={item.icon}
-                text={item.text}
-                active={pathname === item.href}
-                onClick={() => handleNavigate(item.href)}
-              />
-            ))}
-            {/* small divider and quick links */}
-            <div className="h-px bg-gray-100 my-2" />
-            <button
-              onClick={() => {
-                setOpen(false);
-                router.push("/profile");
-              }}
-              className="w-full text-left flex items-center gap-3 px-4 py-2 rounded-md text-green-700 hover:bg-green-50"
-            >
-              <User size={18} /> Profile
-            </button>
-            <button
-              onClick={() => {
-                setOpen(false);
-                router.push("/settings");
-              }}
-              className="w-full text-left flex items-center gap-3 px-4 py-2 rounded-md text-green-700 hover:bg-green-50"
-            >
-              <Settings size={18} /> Settings
-            </button>
-          </div>
+        <div className="bg-white p-4 rounded-lg shadow text-green-900">
+          {navItems.map((item) => (
+            <MobileNavItem
+              key={item.href}
+              {...item}
+              active={pathname === item.href}
+              onClick={() => handleNavigate(item.href)}
+            />
+          ))}
         </div>
       </div>
     </nav>
@@ -157,33 +194,24 @@ function NavItem({ icon, text, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-5 py-2 rounded-full transition-all cursor-pointer
-      ${
-        active
-          ? "bg-emerald-200 text-green-800 font-semibold"
-          : "text-green-600 hover:bg-green-100"
-      }`}
+      className={`flex items-center gap-2 px-5 py-2 rounded-full transition
+      ${active ? "bg-green-200 text-green-800 font-semibold" : "text-green-600 hover:bg-green-100"}`}
     >
-      <span className="text-green-500">{icon}</span>
+      {icon}
       <span className="hidden sm:inline">{text}</span>
     </button>
   );
 }
 
-/* Mobile stacked nav item */
 function MobileNavItem({ icon, text, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left flex items-center gap-3 px-4 py-2 rounded-md transition-colors
-        ${
-          active
-            ? "bg-emerald-100 text-green-800 font-semibold"
-            : "text-green-700 hover:bg-green-50"
-        }`}
+      className={`w-full flex gap-3 px-4 py-2 rounded
+      ${active ? "bg-green-100 font-semibold" : "hover:bg-green-50"}`}
     >
-      <span className="text-green-500">{icon}</span>
-      <span>{text}</span>
+      {icon}
+      {text}
     </button>
   );
 }
