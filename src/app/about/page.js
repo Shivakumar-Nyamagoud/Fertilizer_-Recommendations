@@ -232,11 +232,21 @@ export default function AboutPage() {
               <li>Predict best fertilizer combination</li>
               <li>Return recommendation with confidence score</li>
             </ul>
+
             <button
               onClick={() => router.push("/recommendations")}
-              className="text-green-500 cursor-pointer pl-10 text-lg"
+              className="group relative inline-flex items-center gap-2 px-6 py-3 ml-10 mt-4 text-lg font-semibold text-white 
+             bg-gradient-to-r from-green-500 to-emerald-600 cursor-pointer
+             rounded-full shadow-lg transition-all duration-300 
+             hover:scale-105 hover:shadow-xl active:scale-95 animate-bounce"
             >
-              Try AI Prediction
+              {/* Glow Effect */}
+              <Sparkles className="w-5 h-5 transition-transform duration-300 group-hover:rotate-360 " />
+              <span className="">Try AI Prediction</span>
+              <span
+                className="absolute inset-0 rounded-full bg-green-400 opacity-0 blur-md 
+                   group-hover:opacity-30 transition duration-300"
+              ></span>
             </button>
           </Section>
           <Divider />
@@ -254,7 +264,7 @@ export default function AboutPage() {
             icon={<MonitorSmartphone size={20} />}
             title="Technology Stack"
           >
-            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+            <div className="grid sm:grid-cols-2 gap-4 text-sm">
               <div className="bg-emerald-200 p-4 rounded-xl">
                 <p className="font-semibold text-emerald-800">Frontend</p>
 
@@ -277,6 +287,14 @@ export default function AboutPage() {
                 <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
                   <FeaturePill>Python</FeaturePill>
                   <FeaturePill>Scikit-learn</FeaturePill>
+                </ul>
+              </div>
+              <div className="bg-emerald-200 p-4 rounded-xl">
+                <p className="font-semibold text-emerald-800">Programming</p>
+
+                <ul className="grid sm:grid-cols-2 gap-3 text-gray-700 text-sm sm:text-base">
+                  <FeaturePill>C++</FeaturePill>
+                  <FeaturePill>Java Script</FeaturePill>
                 </ul>
               </div>
             </div>

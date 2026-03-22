@@ -192,6 +192,10 @@ export default function RecommendationsPage() {
         phosphorus: recommendation?.adjusted?.k ?? recommendation?.base?.k,
       };
 
+      if (!Soil) {
+        throw new Error(" Please Select Soil Type !");
+      }
+
       const res = await fetch("http://localhost:8001/predict-fertilizer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -216,13 +220,22 @@ export default function RecommendationsPage() {
     }
   }
 
+  useEffect(() => {
+    setFertilizerData(null);
+  }, [Soil]);
+
+  useEffect(() => {
+    setRecommendation(null);
+    setFertilizerData(null);
+  }, [crop]);
+
   // deterministic secondary button classes
   const secondaryBtnClasses =
-    "rounded-full px-6 py-3 text-sm sm:text-base font-medium border border-emerald-200/70 text-emerald-50 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer";
+    "rounded-full px-6 py-3 text-sm sm:text-base font-large border border-emerald-200/70 text-emerald-50 bg-gradient-to-r from-green-500 to-green-100 hover:bg-white/10 transition-colors cursor-pointer text-green-700";
 
   return (
     <main className="min-h-screen pt-24 pb-12 px-4 flex justify-center bg-gradient-to-b from-[#02301b] via-[#044625] to-green-200 ">
-      <div className="w-full max-w-6xl space-y-10">
+      <div className="w-full max-w-7xl space-y-10">
         {/* Top controls – single line */}
         <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-5 shadow-lg">
           <div className="grid gap-6  lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.2fr)_auto] items-end">
@@ -250,135 +263,90 @@ export default function RecommendationsPage() {
             </GradientButton>
           </div>
         </div>
+        <div className="grid lg:grid-cols-2 ">
+          {/* Middle row – realtime + actions */}
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_auto] items-start">
+            <div className="flex flex-col gap-4">
+              <RealtimeReadingsCard
+                readings={readings}
+                lastUpdated={
+                  lastSeenMs ? new Date(lastSeenMs).toLocaleString() : null
+                }
+              />
 
-        {/* Middle row – realtime + actions */}
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_auto] items-start">
-          <div className="flex flex-col gap-4">
-            <RealtimeReadingsCard
-              readings={readings}
-              lastUpdated={
-                lastSeenMs ? new Date(lastSeenMs).toLocaleString() : null
-              }
-            />
-
-            <div className="flex gap-3 items-center">
-              <button
-                className={secondaryBtnClasses}
-                onClick={() => {
-                  // allow quick refresh of recommendation UI when user wants to re-run
-                  handleGetRecommendations();
-                }}
-              >
-                {loading
-                  ? " Calculating ..."
-                  : recommendation
-                    ? "Recalculate"
-                    : "Get Recommendations"}
-              </button>
-
-              <button
-                className={secondaryBtnClasses}
-                onClick={() => {
-                  // allow quick refresh of recommendation UI when user wants to re-run
-                  handleGetFertilizer();
-                }}
-              >
-                {loading ? "Loading ..." : "Predict Fertilizer"}
-              </button>
-
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                  sensorOnline
-                    ? "bg-emerald-700/10 text-emerald-200"
-                    : "bg-red-600/10 text-red-200"
-                }`}
-              >
-                {sensorOnline ? "Live" : "Offline"}
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    sensorOnline ? "bg-lime-300" : "bg-red-400"
+              <div className="flex gap-3 items-center">
+                <div
+                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                    sensorOnline
+                      ? "bg-emerald-700/10 text-emerald-200"
+                      : "bg-red-600/10 text-red-200"
                   }`}
-                />
-                <span className="ml-2 text-[11px] text-emerald-100/80">
-                  {sensorOnline
-                    ? `Last seen ${
-                        lastSeenMs
-                          ? new Date(lastSeenMs).toLocaleTimeString()
-                          : "—"
-                      }`
-                    : lastSeenMs
-                      ? `Last: ${new Date(lastSeenMs).toLocaleString()}`
-                      : "No data"}
-                </span>
+                >
+                  {sensorOnline ? "Live" : "Offline"}
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      sensorOnline ? "bg-lime-300" : "bg-red-400"
+                    }`}
+                  />
+                  <span className="ml-2 text-[11px] text-emerald-100/80">
+                    {sensorOnline
+                      ? `Last seen ${
+                          lastSeenMs
+                            ? new Date(lastSeenMs).toLocaleTimeString()
+                            : "—"
+                        }`
+                      : lastSeenMs
+                        ? `Last: ${new Date(lastSeenMs).toLocaleString()}`
+                        : "No data"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Recommendation panel */}
-        <div className="w-full max-w-3xl bg-white/95 rounded-3xl shadow-2xl px-6 sm:px-8 py-6 space-y-4 border-l-4 border-green-500">
-          <h2 className="text-xl font-semibold text-green-800">
-            Recommendation Summary
-          </h2>
+          {/* Recommendation panel */}
+          <div className="w-full max-w-3xl bg-white/95 rounded-3xl shadow-2xl px-6 sm:px-8 py-6 space-y-4 border-l-4 border-green-500">
+            <h2 className="text-xl font-semibold text-green-800">
+              Recommendation Summary
+            </h2>
 
-          {!recommendation ? (
-            <p className="text-gray-600 text-sm sm:text-base">
-              Select a crop and Soil Type above, then click{" "}
-              <span className="font-semibold text-green-700">
-                Get Recommendations
-              </span>{" "}
-              to view fertilizer suggestions based on your realtime sensor
-              readings.
-            </p>
-          ) : (
-            <>
-              <p className="text-gray-700 text-sm sm:text-base text-bold">
-                Recommended NPK dose for{" "}
-                <span className="font-semibold text-green-700">
-                  {recommendation.crop}
-                </span>{" "}
-                in{" "}
-                <span className="font-semibold text-green-700">
-                  {SOIL_OPTIONS.find((s) => s.value === Soil)?.label}
-                </span>{" "}
-                Soil:
-              </p>
-              <div className="grid sm:grid-cols-3 gap-4 text-sm sm:text-base">
-                <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
-                  <p className="text-xs text-gray-500">Nitrogen (N)</p>
-                  <p className="font-semibold text-green-800 mt-1">
-                    {recommendation.adjusted?.n ??
-                      recommendation.base?.n ??
-                      "—"}{" "}
-                    kg/ha
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
-                  <p className="text-xs text-gray-500">Phosphorus (P)</p>
-                  <p className="font-semibold text-green-800 mt-1">
-                    {recommendation.adjusted?.p ??
-                      recommendation.base?.p ??
-                      "—"}{" "}
-                    kg/ha
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
-                  <p className="text-xs text-gray-500">Potassium (K)</p>
-                  <p className="font-semibold text-green-800 mt-1">
-                    {recommendation.adjusted?.k ??
-                      recommendation.base?.k ??
-                      "—"}{" "}
-                    kg/ha
-                  </p>
-                </div>
-              </div>
-              stage
-              <p className="text-gray-700 text-sm sm:text-base mt-2 decoration-solid bg-gradient-to-r from-green-300 to-green-100 p-3 rounded">
-                {recommendation.note}
-              </p>
-              <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
+            {!recommendation ? (
+              <ul className="text-gray-600 mt-6 text-sm sm:text-base list-disc list-inside space-y-2">
+                <li>
+                  Select the appropriate{" "}
+                  <span className="font-semibold">Crop</span> and{" "}
+                  <span className="font-semibold">Soil Type</span> from the
+                  options above.
+                </li>
+                <li>
+                  Click on{" "}
+                  <span className="font-semibold text-green-700">
+                    Get Recommendations
+                  </span>{" "}
+                  to start the analysis.
+                </li>
+                <li>
+                  The system uses{" "}
+                  <span className="font-semibold">real-time sensor data</span>{" "}
+                  such as soil nutrients, moisture, and environmental
+                  conditions.
+                </li>
+                <li>
+                  Based on the data, it suggests the most suitable{" "}
+                  <span className="font-semibold">fertilizers</span> for your
+                  crop.
+                </li>
+                <li>
+                  Helps improve{" "}
+                  <span className="font-semibold">crop yield</span>, maintain{" "}
+                  <span className="font-semibold">soil health</span>, and
+                  support efficient farming.
+                </li>
+              </ul>
+            ) : (
+              <>
                 <p className="text-gray-700 text-sm sm:text-base text-bold">
-                  Top Recommended Fertilizers for{" "}
+                  Recommended NPK dose for{" "}
                   <span className="font-semibold text-green-700">
                     {recommendation.crop}
                   </span>{" "}
@@ -388,44 +356,131 @@ export default function RecommendationsPage() {
                   </span>{" "}
                   Soil:
                 </p>
-                {fertilizer?.map((item, index) => (
-                  <p key={index} className="font-semibold text-green-800 mt-1">
-                    {item.fertilizer}
-                  </p>
-                ))}
-              </div>
-              <div className="mt-4 text-xs text-gray-600 bg-gradient-to-r from-green-300 to-green-100 p-3 rounded decoration-solid">
-                <div>
-                  <strong>Why adjusted:</strong>
+                <div className="grid sm:grid-cols-3 gap-4 text-sm sm:text-base">
+                  <div className="rounded-2xl bg-green-200 px-4 py-3">
+                    <p className="text-xs text-gray-500">Nitrogen (N)</p>
+                    <p className="font-semibold text-green-800 mt-1">
+                      {recommendation.adjusted?.n ??
+                        recommendation.base?.n ??
+                        "—"}{" "}
+                      kg/ha
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-green-200 px-4 py-3">
+                    <p className="text-xs text-gray-500">Phosphorus (P)</p>
+                    <p className="font-semibold text-green-800 mt-1">
+                      {recommendation.adjusted?.p ??
+                        recommendation.base?.p ??
+                        "—"}{" "}
+                      kg/ha
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-green-200 px-4 py-3">
+                    <p className="text-xs text-gray-500">Potassium (K)</p>
+                    <p className="font-semibold text-green-800 mt-1">
+                      {recommendation.adjusted?.k ??
+                        recommendation.base?.k ??
+                        "—"}{" "}
+                      kg/ha
+                    </p>
+                  </div>
+                  <button
+                    className={secondaryBtnClasses}
+                    onClick={() => {
+                      // allow quick refresh of recommendation UI when user wants to re-run
+                      handleGetRecommendations();
+                    }}
+                  >
+                    {loading
+                      ? " Calculating ..."
+                      : recommendation
+                        ? "Recalculate"
+                        : "Get Recommendations"}
+                  </button>
                 </div>
-                <div className="mt-1">
-                  pH optimal range:{" "}
-                  {recommendation.optimal?.ph
-                    ? `${recommendation.optimal.ph.low} - ${recommendation.optimal.ph.high}`
-                    : "N/A"}
-                  {" • "}
-                  moisture optimal range:{" "}
-                  {recommendation.optimal?.moisture
-                    ? `${recommendation.optimal.moisture.low} - ${recommendation.optimal.moisture.high}`
-                    : "N/A"}
-                </div>
-                <div className="mt-2">
-                  Sensor values used: pH ={" "}
-                  {String(
-                    recommendation.adjusted?.adjustments?.ph ??
-                      payloadSafe(readings.ph),
-                  )}
-                  {" • "} moisture ={" "}
-                  {String(
-                    recommendation.adjusted?.adjustments?.moisture ??
-                      payloadSafe(readings.humidity ?? readings.soilMoisture),
-                  )}
-                </div>
-              </div>
-            </>
-          )}
 
-          {error && <div className="text-sm text-red-600">Error: {error}</div>}
+                <p className="text-gray-700 text-sm sm:text-base mt-2 decoration-solid bg-gradient-to-r from-green-300 to-green-100 p-3 rounded">
+                  {recommendation.note}
+                </p>
+                <Divider />
+                <div className="rounded-2xl bg-[#ecfff4] px-4 py-3">
+                  <div className="bg-green-200 p-2 rounded-xl">
+                    <p className="text-gray-700 text-sm sm:text-base text-bold">
+                      Top Recommended Fertilizers for{" "}
+                      <span className="font-semibold text-green-700">
+                        {recommendation.crop}
+                      </span>{" "}
+                      in{" "}
+                      <span className="font-semibold text-green-700">
+                        {SOIL_OPTIONS.find((s) => s.value === Soil)?.label}
+                      </span>{" "}
+                      Soil:
+                    </p>
+                    {fertilizer?.map((item, index) => (
+                      <p
+                        key={index}
+                        className="font-semibold text-green-800 mt-2 bg-green-100 p-2 rounded-full"
+                      >
+                        {item.fertilizer}
+                        {item.fertilizer?.toLowerCase() === "urea" && (
+                          <span className="ml-4 inline-flex items-center gap-1 font-normal border border-red-200 text-red-600 bg-red-100 px-4 py-1 rounded-full animate-pulse">
+                            <AlertTriangle className="w-4 h-4 " />
+                            Use only -- other fertilizers not available
+                          </span>
+                        )}
+                      </p>
+                    ))}
+                  </div>
+                  {!fertilizer && (
+                    <div className="mt-4 grid sm:grid-cols-3 gap-4 ">
+                      <button
+                        className={`${secondaryBtnClasses}`}
+                        onClick={() => {
+                          // allow quick refresh of recommendation UI when user wants to re-run
+                          handleGetFertilizer();
+                        }}
+                      >
+                        {loading ? "Loading ..." : "Predict Fertilizer"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <Divider />
+                <div className="mt-4 text-xs text-gray-600 bg-gradient-to-r from-green-300 to-green-100 p-3 rounded decoration-solid">
+                  <div>
+                    <strong>Why adjusted:</strong>
+                  </div>
+                  <div className="mt-1">
+                    pH optimal range:{" "}
+                    {recommendation.optimal?.ph
+                      ? `${recommendation.optimal.ph.low} - ${recommendation.optimal.ph.high}`
+                      : "N/A"}
+                    {" • "}
+                    moisture optimal range:{" "}
+                    {recommendation.optimal?.moisture
+                      ? `${recommendation.optimal.moisture.low} - ${recommendation.optimal.moisture.high}`
+                      : "N/A"}
+                  </div>
+                  <div className="mt-2">
+                    Sensor values used: pH ={" "}
+                    {String(
+                      recommendation.adjusted?.adjustments?.ph ??
+                        payloadSafe(readings.ph),
+                    )}
+                    {" • "} moisture ={" "}
+                    {String(
+                      recommendation.adjusted?.adjustments?.moisture ??
+                        payloadSafe(readings.humidity ?? readings.soilMoisture),
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {error && (
+              <div className="text-sm text-red-600">Error: {error}</div>
+            )}
+          </div>
         </div>
       </div>
     </main>
@@ -438,4 +493,10 @@ export default function RecommendationsPage() {
 function payloadSafe(v) {
   if (v == null) return "—";
   return String(v);
+}
+
+function Divider() {
+  return (
+    <div className="h-px w-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
+  );
 }
