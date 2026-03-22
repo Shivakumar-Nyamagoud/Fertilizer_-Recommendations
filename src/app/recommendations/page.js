@@ -256,7 +256,7 @@ export default function RecommendationsPage() {
 
             <GradientButton
               onClick={handleGetRecommendations}
-              disabled={loading || !crop}
+              disabled={loading || !crop || !Soil}
               className="px-8 py-3 mb-5 text-sm sm:text-base whitespace-nowrap bg-gradient-to-r from-emerald-500 to-green-500"
             >
               {loading ? "Calculating..." : "Get Recommendations"}

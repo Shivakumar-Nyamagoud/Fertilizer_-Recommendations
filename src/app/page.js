@@ -106,7 +106,7 @@ export default function HomePage() {
           <InfoCard
             icon={<Sprout size={20} />}
             title="Smart NPK Guidance"
-            text="Get crop- and stage-specific fertilizer recommendations instead of one-size-fits-all doses."
+            text="Get crop and soil-specific fertilizer recommendations instead of one-size-fits-all doses."
           />
           <InfoCard
             icon={<Info size={20} />}
