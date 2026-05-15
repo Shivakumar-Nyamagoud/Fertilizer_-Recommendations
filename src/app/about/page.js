@@ -88,7 +88,7 @@ export default function AboutPage() {
     { id: "vision", label: "Our Vision" },
   ];
   return (
-    <div className="h-screen flex bg-gradient-to-b from-[#012818] via-[#04512c] to-[#f3fff7] overflow-hidde">
+    <div className="h-screen flex bg-gradient-to-b from-[#04120d] via-[#071420] to-[#0b1f2d] overflow-hidde">
       {/* side navbar */}
       <div
         className=" hidden md:flex flex-col  font-semibold font-mono

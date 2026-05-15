@@ -15,6 +15,7 @@ import {
   Bell,
   Moon,
   LogOut,
+  History,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -36,6 +37,12 @@ export default function Navbar() {
       icon: <Sprout size={18} />,
       text: "Recommendations",
       href: "/recommendations",
+    },
+
+    {
+      icon: <History size={18} />,
+      text: "History",
+      href: "/sensor-history",
     },
     { icon: <Info size={18} />, text: "About", href: "/about" },
   ];

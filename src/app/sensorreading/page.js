@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Wifi, MapPin, Activity, AlertTriangle, XCircle } from "lucide-react";
-import RealtimeReadingsCard from "../../components/ui/RealtimeReadingsCard";
+import RealtimeReadingsCard from "../../components/ui/RealtimeReadingsCard_v2";
 import { rtdb } from "@/lib/firebaseClient";
 import { ref, onValue, off } from "firebase/database";
 import PlantSearchInput from "../../components/ui/PlantSearchInput";
@@ -136,7 +136,7 @@ export default function SensorReadingPage() {
   }, [lastSeenMs]);
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#021c12] via-[#044e2b] to-[#e9fff3]">
+    <main className="min-h-screen pt-24 pb-16 px-4 flex justify-center bg-gradient-to-b from-[#04120d] via-[#071420] to-[#0b1f2d]">
       <div className="w-full max-w-6xl space-y-10">
         {/* Header */}
         <section className="text-center space-y-4">
@@ -187,7 +187,7 @@ export default function SensorReadingPage() {
           </p>
         </section>
 
-        <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-5 shadow-lg">
+        {/* <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-5 shadow-lg">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.2fr)_auto] items-end">
             <div className="mb-4">
               <PlantSearchInput
@@ -203,81 +203,62 @@ export default function SensorReadingPage() {
               options={STAGE_OPTIONS}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Main content row */}
-        <section className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)] items-start">
+        <div className=" justify-center">
+          <div className="rounded-2xl bg-white/95 backdrop-blur-md shadow-xl px-5 py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <Wifi size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase">
+                    Connection
+                  </p>
+                  <p className="text-sm font-semibold text-emerald-700">
+                    {sensorOnline ? "Online · Stable" : "Offline / Unstable"}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] text-gray-500 uppercase">
+                  Last Updated
+                </p>
+                <p className="text-sm font-medium text-emerald-700">
+                  {lastUpdated || "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Realtime card (reused component) */}
-          <div className="flex justify-center lg:justify-start">
+          <div className="flex justify-center mt-8">
             <RealtimeReadingsCard
               readings={readings}
               lastUpdated={lastUpdated}
+              sensorOnline={sensorOnline}
             />
           </div>
 
           {/* Sensor + field info */}
-          <div className="space-y-4">
-            <div className="rounded-2xl bg-white/95 backdrop-blur-md shadow-xl px-5 py-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
-                    <Wifi size={18} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500 uppercase">
-                      Connection
-                    </p>
-                    <p className="text-sm font-semibold text-emerald-700">
-                      {sensorOnline ? "Online · Stable" : "Offline / Unstable"}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[11px] text-gray-500 uppercase">
-                    Last Updated
-                  </p>
-                  <p className="text-sm font-medium text-emerald-700">
-                    {lastUpdated || "—"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white/95 backdrop-blur-md shadow-xl px-5 py-5 space-y-3 border border-emerald-100">
+          <div className="space-y-4 mt-8">
+            <div className="rounded-2xl bg-white/95 backdrop-blur-md shadow-xl px-5 py-5 border border-emerald-100">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                {/* Icon */}
+                <div className="mt-1 text-emerald-600">
                   <MapPin size={20} />
                 </div>
 
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-gray-500 tracking-wide uppercase">
-                    Field & Crop Information
-                  </p>
-
-                  {/* Crop & Stage Dynamic Content */}
-                  <p className="mt-1 text-sm font-semibold text-emerald-800">
-                    {crop ? (
-                      <>
-                        Plot A ·{" "}
-                        <span className="text-emerald-700 font-bold">
-                          {crop}
-                        </span>{" "}
-                        <span className="text-gray-600">
-                          ({stage ? `${stage} ` : "Soil not selected"})
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-gray-600">No crop selected</span>
-                    )}
-                  </p>
-                </div>
+                {/* Text */}
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  These readings represent the live values captured from your
+                  installed sensor unit. For larger fields, consider adding
+                  multiple nodes to get more accurate coverage of soil
+                  variations.
+                </p>
               </div>
-
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                These readings represent the live values captured from your
-                installed sensor unit. For larger fields, consider adding
-                multiple nodes to get more accurate coverage of soil variations.
-              </p>
             </div>
 
             <div className="rounded-2xl bg-emerald-900/50 border border-emerald-500/40 px-5 py-5 text-emerald-50 space-y-3 shadow-lg">
@@ -344,7 +325,7 @@ export default function SensorReadingPage() {
               </p>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );
